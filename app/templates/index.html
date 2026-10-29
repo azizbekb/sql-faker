@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block body %}
+<form id="controls" class="toolbar border-bottom bg-body-tertiary px-3 py-2 d-flex flex-wrap gap-3 align-items-end" method="get">
+  <div>
+    <label class="form-label small mb-1" for="locale">Region</label>
+    <select class="form-select form-select-sm" id="locale" name="locale">
+      {% for l in locales %}
+      <option value="{{ l.code }}" {% if l.code == locale %}selected{% endif %}>{{ l.name }} — {{ l.code }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="form-label small mb-1" for="seed">Seed</label>
+    <div class="input-group input-group-sm">
+      <input class="form-control seed-input" id="seed" name="seed" type="number" value="{{ seed }}" required>
+      <button class="btn btn-outline-secondary" type="button" id="random-seed" title="Random seed">🎲</button>
+    </div>
+  </div>
+  <button class="btn btn-sm btn-primary" type="submit">Generate</button>
+  <button class="btn btn-sm btn-outline-primary" type="button" id="next-batch">Next batch ↓</button>
+  <div class="ms-auto d-flex gap-2 align-items-end">
+    <span class="small text-secondary" id="status">Batches loaded: <b id="batch-count">1</b> · users: <b id="user-count">{{ users|length }}</b></span>
+    <button class="btn btn-sm btn-outline-success" type="button" id="bench">Benchmark</button>
+  </div>
+</form>
+<div id="bench-result" class="alert alert-success m-3 py-2 d-none"></div>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover align-top users mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>#</th><th>Name</th><th>Address</th><th>Geolocation</th><th>Phone</th>
+        <th>E-mail</th><th>Physical</th><th>About</th>
+      </tr>
+    </thead>
+    <tbody id="rows" data-locale="{{ locale }}" data-seed="{{ seed }}" data-next="{{ batch + 1 }}">
+      {% include "_rows.html" %}
+    </tbody>
+  </table>
+</div>
+<div id="sentinel" class="text-center text-secondary small py-3">Scroll for more…</div>
+
+<script>
+(() => {
+  const rows = document.getElementById('rows');
+  const form = document.getElementById('controls');
+  let loading = false, batches = 1;
+
+  const regenerate = () => form.requestSubmit();
+  document.getElementById('locale').addEventListener('change', regenerate);
+  document.getElementById('random-seed').addEventListener('click', () => {
+    document.getElementById('seed').value = Math.floor(Math.random() * 1e8);
+    regenerate();
+  });
+
+  async function nextBatch() {
+    if (loading) return;
+    loading = true;
+    const p = new URLSearchParams({locale: rows.dataset.locale, seed: rows.dataset.seed, batch: rows.dataset.next});
+    try {
+      const res = await fetch('/batch?' + p);
+      if (!res.ok) throw new Error(await res.text());
+      rows.insertAdjacentHTML('beforeend', await res.text());
+      rows.dataset.next = +rows.dataset.next + 1;
+      document.getElementById('batch-count').textContent = ++batches;
+      document.getElementById('user-count').textContent = rows.children.length;
+    } finally { loading = false; }
+  }
+  document.getElementById('next-batch').addEventListener('click', nextBatch);
+  new IntersectionObserver(e => { if (e[0].isIntersecting) nextBatch(); })
+    .observe(document.getElementById('sentinel'));
+
+  document.getElementById('bench').addEventListener('click', async (ev) => {
+    const out = document.getElementById('bench-result');
+    ev.target.disabled = true;
+    out.classList.remove('d-none');
+    out.textContent = 'Generating 5 000 users inside PostgreSQL…';
+    const r = await (await fetch('/api/benchmark?count=5000&locale=' + rows.dataset.locale)).json();
+    out.innerHTML = `<b>${r.users_per_second} users/second</b> — ${r.users} users (${r.locale}) in ${r.seconds} s`;
+    ev.target.disabled = false;
+  });
+})();
+</script>
+{% endblock %}

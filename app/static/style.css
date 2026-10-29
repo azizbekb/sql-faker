@@ -1,0 +1,12 @@
+body { font-size: .92rem; }
+.toolbar { position: sticky; top: 56px; z-index: 10; }
+.seed-input { width: 11rem; }
+.users td.name { min-width: 12rem; }
+.users td.addr { min-width: 14rem; }
+.users td.bio  { min-width: 18rem; max-width: 28rem; color: var(--bs-secondary-color); }
+.docs { max-width: 960px; }
+.docs pre { background: var(--bs-tertiary-bg); padding: .75rem 1rem; border-radius: .4rem; }
+.docs table { margin-bottom: 1rem; }
+.docs table td, .docs table th { border: 1px solid var(--bs-border-color); padding: .25rem .5rem; vertical-align: top; }
+.docs h2 { margin-top: 2rem; padding-bottom: .3rem; border-bottom: 1px solid var(--bs-border-color); }
+.docs h3 { margin-top: 1.4rem; }

@@ -1,0 +1,20 @@
+{% for u in users %}
+<tr>
+  <td class="text-secondary small" title="batch {{ u.batch_index }}, index {{ u.index_in_batch }}">{{ u.position + 1 }}</td>
+  <td class="name">
+    <div class="fw-semibold">{{ u.full_name }}</div>
+    <div class="small text-secondary">{{ '♂' if u.gender == 'M' else '♀' }} {{ u.age }}</div>
+  </td>
+  <td class="addr">{{ u.address }}</td>
+  <td class="small font-monospace text-nowrap">
+    <a href="https://www.openstreetmap.org/?mlat={{ u.latitude }}&mlon={{ u.longitude }}#map=4/{{ u.latitude }}/{{ u.longitude }}" target="_blank" rel="noopener">{{ "%.5f"|format(u.latitude) }},<br>{{ "%.5f"|format(u.longitude) }}</a>
+  </td>
+  <td class="text-nowrap">{{ u.phone }}</td>
+  <td class="small">{{ u.email }}</td>
+  <td class="small text-nowrap">
+    {{ u.physical }}<br>
+    <span class="text-secondary">👁 {{ u.eye_color }} · ✂ {{ u.hair_color }} · 🩸 {{ u.blood_type }}</span>
+  </td>
+  <td class="small bio">{{ u.bio }}</td>
+</tr>
+{% endfor %}
