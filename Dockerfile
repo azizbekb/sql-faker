@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 ENV PORT=8000
 # INIT_DB=1 loads/refreshes the SQL library on start (idempotent: schema is recreated)
-CMD ["sh", "-c", "if [ \"$INIT_DB\" = 1 ]; then scripts/init_db.sh \"$DATABASE_URL\"; fi; exec gunicorn -w ${WEB_CONCURRENCY:-2} -b 0.0.0.0:$PORT --chdir app app:app"]
+CMD ["sh", "-c", "if [ \"$INIT_DB\" = 1 ]; then scripts/init_db.sh \"$DATABASE_URL\"; fi; exec gunicorn --timeout 120 -w ${WEB_CONCURRENCY:-2} -b 0.0.0.0:$PORT --chdir app app:app"]

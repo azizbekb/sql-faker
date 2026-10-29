@@ -74,8 +74,8 @@
     const out = document.getElementById('bench-result');
     ev.target.disabled = true;
     out.classList.remove('d-none');
-    out.textContent = 'Generating 5 000 users inside PostgreSQL…';
-    const r = await (await fetch('/api/benchmark?count=5000&locale=' + rows.dataset.locale)).json();
+    out.textContent = 'Generating 1 000 users inside PostgreSQL…';
+    const r = await (await fetch('/api/benchmark?count=1000&locale=' + rows.dataset.locale)).json();
     out.innerHTML = `<b>${r.users_per_second} users/second</b> — ${r.users} users (${r.locale}) in ${r.seconds} s`;
     ev.target.disabled = false;
   });
